@@ -6,7 +6,6 @@ import {
     ContentChild,
     ElementRef,
     EventEmitter,
-    forwardRef,
     Inject,
     Input,
     OnDestroy,
@@ -16,7 +15,8 @@ import {
     SecurityContext,
     TemplateRef,
     ViewChild,
-    ViewEncapsulation
+    ViewEncapsulation,
+    forwardRef
 } from '@angular/core';
 import {
     ControlValueAccessor,
@@ -25,16 +25,17 @@ import {
     ReactiveFormsModule
 } from '@angular/forms';
 import { DomSanitizer } from '@angular/platform-browser';
-import { AeToolbarComponent } from './ae-toolbar/ae-toolbar.component';
-import { AngularEditorService } from './angular-editor.service';
-import { AngularEditorConfig } from './config';
-import { isDefined } from './utils';
 import { BehaviorSubject } from 'rxjs';
-import { loadDefaultConfig } from './config-default';
-import { NgxResizedDirective } from './resized.directive';
-import { CommandId } from './types';
-import { AeSelectionService } from './ae-selection.service';
+
+import type { CommandId } from './types';
+import { AeSelectionService } from './services/ae-selection.service';
+import { AeToolbarComponent } from './components/ae-toolbar/ae-toolbar.component';
+import { AngularEditorConfig } from './config/config';
+import { AngularEditorService } from './services/angular-editor.service';
 import { NGX_EDITOR_CONFIG } from './provide-angluar-editor';
+import { NgxResizedDirective } from './directives/resized.directive';
+import { isTruthy } from './utils';
+import { loadDefaultConfig } from './config/config-default';
 
 @Component({
     selector: 'angular-editor',
@@ -126,7 +127,7 @@ export class AngularEditorComponent
     }
 
     ngAfterViewInit() {
-        if (isDefined(this.autoFocus)) this.onFocus();
+        if (isTruthy(this.autoFocus)) this.onFocus();
     }
 
     private get _sourceMode() {

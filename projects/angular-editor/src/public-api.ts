@@ -1,12 +1,12 @@
-import { AngularEditorConfig as _AngularEditorConfig } from './lib/config';
+import { AngularEditorConfig as _AngularEditorConfig } from './lib/config/config';
 
-export * from './lib/angular-editor.service';
+export * from './lib/services/angular-editor.service';
 export * from './lib/angular-editor.component';
-export * from './lib/ae-button/ae-button.component';
-export * from './lib/ae-toolbar-set/ae-toolbar-set.component';
-export * from './lib/ae-select/ae-select.component';
-export * from './lib/ae-toolbar/ae-toolbar.component';
-export * from './lib/ae-selection.service';
+export * from './lib/components/ae-button/ae-button.component';
+export * from './lib/components/ae-toolbar-set/ae-toolbar-set.component';
+export * from './lib/components/ae-select/ae-select.component';
+export * from './lib/components/ae-toolbar/ae-toolbar.component';
+export * from './lib/services/ae-selection.service';
 
 export { provideAngularEditor } from './lib/provide-angluar-editor';
 
@@ -20,6 +20,6 @@ export {
     type SpecialFormats,
     type StyleOptions,
     type TextAlignOptions
-} from './lib/config';
+} from './lib/config/config';
 
 export declare type AngularEditorConfig = Partial<_AngularEditorConfig>;

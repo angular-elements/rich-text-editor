@@ -31,37 +31,57 @@
     "@angular/platform-browser": "^19.1.7",
     "@angular/platform-browser-dynamic": "^19.1.7",
     "@angular/router": "^19.1.7",
-    "font-awesome": "^4.7.0",
     "material-symbols": "^0.28.2",
     "rxjs": "~7.8.1",
+    "showdown": "^2.1.0",
     "tslib": "^2.4.0",
     "zone.js": "~0.15.0"
   },
   "devDependencies": {
+    "@angular-builders/jest": "^19.0.0",
     "@angular-devkit/build-angular": "^19.1.8",
     "@angular/cli": "^19.1.8",
     "@angular/compiler-cli": "^19.1.7",
     "@angular/language-service": "^19.1.7",
-    "@types/jasmine": "~3.8.2",
-    "@types/jasminewd2": "^2.0.10",
-    "@types/node": "^12.11.1",
-    "@typescript-eslint/eslint-plugin": "^5.29.0",
-    "@typescript-eslint/parser": "^5.29.0",
-    "coveralls": "^3.1.1",
-    "cpx2": "^8.0.0",
-    "eslint": "^8.18.0",
-    "jasmine-core": "~3.8.0",
-    "jasmine-spec-reporter": "~6.0.0",
+    "@types/jasmine": "~5.1.0",
+    "@types/jest": "^29.5.14",
+    "@types/showdown": "^2.0.6",
+    "jasmine-core": "~5.5.0",
+    "jest": "^29.7.0",
+    "jest-preset-angular": "^14.5.3",
     "karma": "^6.4.0",
-    "karma-chrome-launcher": "^3.1.1",
-    "karma-coverage": "^2.2.0",
-    "karma-jasmine": "~4.0.1",
-    "karma-jasmine-html-reporter": "^1.6.0",
+    "karma-chrome-launcher": "^3.2.0",
+    "karma-coverage": "~2.2.0",
+    "karma-jasmine": "~5.1.0",
+    "karma-jasmine-html-reporter": "~2.1.0",
     "ng-packagr": "^19.1.2",
     "prettier": "^3.5.1",
-    "protractor": "~7.0.0",
+    "ts-jest": "^29.2.6",
     "ts-node": "~8.5.0",
-    "typescript": "5.7.3",
-    "webpack": "^5.73.0"
+    "typescript": "5.7.3"
+  },
+  "jest": {
+    "preset": "jest-preset-angular",
+    "setupFilesAfterEnv": [
+      "<rootDir>/setup-jest.ts"
+    ],
+    "testMatch": [
+      "**/+(*.)+(spec).+(ts)"
+    ],
+    "moduleFileExtensions": [
+      "ts",
+      "html",
+      "js",
+      "json"
+    ],
+    "transform": {
+      "^.+\\.(ts|html)$": "jest-preset-angular"
+    },
+    "collectCoverage": true,
+    "coverageReporters": [
+      "html"
+    ],
+    "coverageDirectory": "<rootDir>/coverage/",
+    "testEnvironment": "jsdom"
   }
 }

@@ -1,0 +1,11 @@
+@use '../../styles/sys' as sys;
+
+ae-toolbar-set {
+    display: flex;
+
+    & + ae-toolbar-set {
+        border-left: solid 1px sys.$outline;
+        padding-left: sys.$padding-full;
+        margin-left: sys.$padding-full;
+    }
+}
