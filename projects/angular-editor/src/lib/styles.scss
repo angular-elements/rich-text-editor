@@ -1,4 +1,11 @@
+@forward 'themes/themes';
+
+@use 'sys' as sys;
+
 a {
-  cursor: pointer;
+    cursor: pointer;
 }
 
+.mat-mdc-select-trigger {
+    gap: sys.$padding-small;
+}

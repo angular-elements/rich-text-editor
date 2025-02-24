@@ -1,304 +1,222 @@
-import {Inject, Injectable} from '@angular/core';
-import {HttpClient, HttpEvent} from '@angular/common/http';
-import {Observable} from 'rxjs';
-import {DOCUMENT} from '@angular/common';
-import {CustomClass} from './config';
+import { Inject, Injectable } from '@angular/core';
+import { HttpClient, HttpEvent } from '@angular/common/http';
+import { NEVER, Observable } from 'rxjs';
+import { DOCUMENT } from '@angular/common';
+import { CustomClass } from './config';
+import { formatHtmlTag } from './utils';
+import { CommandId } from './types';
+import { AeSelectionService } from './ae-selection.service';
 
 export interface UploadResponse {
-  imageUrl: string;
+    imageUrl: string;
 }
 
 @Injectable()
 export class AngularEditorService {
+    /**
+     * The URL to upload images.
+     */
+    uploadUrl?: string;
 
-  savedSelection: Range | null;
-  selectedText: string;
-  uploadUrl: string;
-  uploadWithCredentials: boolean;
+    /**
+     * Whether to include credentials in the upload request.
+     */
+    uploadWithCredentials?: boolean;
 
-  constructor(
-    private http: HttpClient,
-    @Inject(DOCUMENT) private doc: any
-  ) { }
+    constructor(
+        private http: HttpClient,
+        @Inject(DOCUMENT)
+        private _doc: Document,
+        private _selection: AeSelectionService
+    ) {}
 
-  /**
-   * Executed command from editor header buttons exclude toggleEditorMode
-   * @param command string from triggerCommand
-   * @param value
-   */
-  executeCommand(command: string, value?: string) {
-    const commands = ['h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'p', 'pre'];
-    if (commands.includes(command)) {
-      this.doc.execCommand('formatBlock', false, command);
-      return;
-    }
-    this.doc.execCommand(command, false, value);
-  }
-
-  /**
-   * Create URL link
-   * @param url string from UI prompt
-   */
-  createLink(url: string) {
-    if (!url.includes('http')) {
-      this.doc.execCommand('createlink', false, url);
-    } else {
-      const newUrl = '<a href="' + url + '" target="_blank">' + this.selectedText + '</a>';
-      this.insertHtml(newUrl);
-    }
-  }
-
-  /**
-   * insert color either font or background
-   *
-   * @param color color to be inserted
-   * @param where where the color has to be inserted either text/background
-   */
-  insertColor(color: string, where: string): void {
-    const restored = this.restoreSelection();
-    if (restored) {
-      if (where === 'textColor') {
-        this.doc.execCommand('foreColor', false, color);
-      } else {
-        this.doc.execCommand('hiliteColor', false, color);
-      }
-    }
-  }
-
-  /**
-   * Set font name
-   * @param fontName string
-   */
-  setFontName(fontName: string) {
-    this.doc.execCommand('fontName', false, fontName);
-  }
-
-  /**
-   * Set font size
-   * @param fontSize string
-   */
-  setFontSize(fontSize: string) {
-    this.doc.execCommand('fontSize', false, fontSize);
-  }
-
-  /**
-   * Create raw HTML
-   * @param html HTML string
-   */
-  insertHtml(html: string): void {
-
-    const isHTMLInserted = this.doc.execCommand('insertHTML', false, html);
-
-    if (!isHTMLInserted) {
-      throw new Error('Unable to perform the operation');
-    }
-  }
-
-  /**
-   * save selection when the editor is focussed out
-   */
-  public saveSelection = (): void => {
-    if (this.doc.getSelection) {
-      const sel = this.doc.getSelection();
-      if (sel.getRangeAt && sel.rangeCount) {
-        this.savedSelection = sel.getRangeAt(0);
-        this.selectedText = sel.toString();
-      }
-    } else if (this.doc.getSelection && this.doc.createRange) {
-      this.savedSelection = document.createRange();
-    } else {
-      this.savedSelection = null;
-    }
-  }
-
-  /**
-   * restore selection when the editor is focused in
-   *
-   * saved selection when the editor is focused out
-   */
-  restoreSelection(): boolean {
-    if (this.savedSelection) {
-      if (this.doc.getSelection) {
-        const sel = this.doc.getSelection();
-        sel.removeAllRanges();
-        sel.addRange(this.savedSelection);
-        return true;
-      } else if (this.doc.getSelection /*&& this.savedSelection.select*/) {
-        // this.savedSelection.select();
-        return true;
-      }
-    } else {
-      return false;
-    }
-  }
-
-  /**
-   * setTimeout used for execute 'saveSelection' method in next event loop iteration
-   */
-  public executeInNextQueueIteration(callbackFn: (...args: any[]) => any, timeout = 1e2): void {
-    setTimeout(callbackFn, timeout);
-  }
-
-  /** check any selection is made or not */
-  private checkSelection(): any {
-
-    const selectedText = this.savedSelection.toString();
-
-    if (selectedText.length === 0) {
-      throw new Error('No Selection Made');
-    }
-    return true;
-  }
-
-  /**
-   * Upload file to uploadUrl
-   * @param file The file
-   */
-  uploadImage(file: File): Observable<HttpEvent<UploadResponse>> {
-
-    const uploadData: FormData = new FormData();
-
-    uploadData.append('file', file, file.name);
-
-    return this.http.post<UploadResponse>(this.uploadUrl, uploadData, {
-      reportProgress: true,
-      observe: 'events',
-      withCredentials: this.uploadWithCredentials,
-    });
-  }
-
-  /**
-   * Insert image with Url
-   * @param imageUrl The imageUrl.
-   */
-  insertImage(imageUrl: string) {
-    this.doc.execCommand('insertImage', false, imageUrl);
-  }
-
-  setDefaultParagraphSeparator(separator: string) {
-    this.doc.execCommand('defaultParagraphSeparator', false, separator);
-  }
-
-  createCustomClass(customClass: CustomClass) {
-    let newTag = this.selectedText;
-    if (customClass) {
-      const tagName = customClass.tag ? customClass.tag : 'span';
-      newTag = '<' + tagName + ' class="' + customClass.class + '">' + this.selectedText + '</' + tagName + '>';
-    }
-    this.insertHtml(newTag);
-  }
-
-  insertVideo(videoUrl: string) {
-    if (videoUrl.match('www.youtube.com')) {
-      this.insertYouTubeVideoTag(videoUrl);
-    }
-    if (videoUrl.match('vimeo.com')) {
-      this.insertVimeoVideoTag(videoUrl);
-    }
-  }
-
-  private insertYouTubeVideoTag(videoUrl: string): void {
-    const id = videoUrl.split('v=')[1];
-    const imageUrl = `https://img.youtube.com/vi/${id}/0.jpg`;
-    const thumbnail = `
-      <div style='position: relative'>
-        <a href='${videoUrl}' target='_blank'>
-          <img src="${imageUrl}" alt="click to watch"/>
-          <img style='position: absolute; left:200px; top:140px'
-          src="https://img.icons8.com/color/96/000000/youtube-play.png"/>
-        </a>
-      </div>`;
-    this.insertHtml(thumbnail);
-  }
-
-  private insertVimeoVideoTag(videoUrl: string): void {
-    const sub = this.http.get<any>(`https://vimeo.com/api/oembed.json?url=${videoUrl}`).subscribe(data => {
-      const imageUrl = data.thumbnail_url_with_play_button;
-      const thumbnail = `<div>
-        <a href='${videoUrl}' target='_blank'>
-          <img src="${imageUrl}" alt="${data.title}"/>
-        </a>
-      </div>`;
-      this.insertHtml(thumbnail);
-      sub.unsubscribe();
-    });
-  }
-
-  nextNode(node) {
-    if (node.hasChildNodes()) {
-      return node.firstChild;
-    } else {
-      while (node && !node.nextSibling) {
-        node = node.parentNode;
-      }
-      if (!node) {
-        return null;
-      }
-      return node.nextSibling;
-    }
-  }
-
-  getRangeSelectedNodes(range, includePartiallySelectedContainers) {
-    let node = range.startContainer;
-    const endNode = range.endContainer;
-    let rangeNodes = [];
-
-    // Special case for a range that is contained within a single node
-    if (node === endNode) {
-      rangeNodes = [node];
-    } else {
-      // Iterate nodes until we hit the end container
-      while (node && node !== endNode) {
-        rangeNodes.push( node = this.nextNode(node) );
-      }
-
-      // Add partially selected nodes at the start of the range
-      node = range.startContainer;
-      while (node && node !== range.commonAncestorContainer) {
-        rangeNodes.unshift(node);
-        node = node.parentNode;
-      }
+    /**
+     * Gets an element by its ID.
+     * @param elementId The ID of the element.
+     */
+    public getElementById(elementId: string) {
+        return this._doc.getElementById(elementId);
     }
 
-    // Add ancestors of the range container, if required
-    if (includePartiallySelectedContainers) {
-      node = range.commonAncestorContainer;
-      while (node) {
-        rangeNodes.push(node);
-        node = node.parentNode;
-      }
+    /**
+     * Inserts HTML into the editor.
+     * @param html The HTML to insert.
+     */
+    public insertHtml(html: string): void {
+        const isHTMLInserted = this.execCommand('insertHTML', html, false);
+
+        if (!isHTMLInserted) {
+            throw new Error('Unable to perform the operation');
+        }
     }
 
-    return rangeNodes;
-  }
-
-  getSelectedNodes() {
-    const nodes = [];
-    if (this.doc.getSelection) {
-      const sel = this.doc.getSelection();
-      for (let i = 0, len = sel.rangeCount; i < len; ++i) {
-        nodes.push.apply(nodes, this.getRangeSelectedNodes(sel.getRangeAt(i), true));
-      }
+    /**
+     * Executes a command on the document.
+     * @param commandId The command ID.
+     * @param commandValue The value for the command.
+     * @param showUI Whether to show the UI.
+     * @deprecated
+     */
+    public execCommand(
+        commandId: CommandId,
+        commandValue?: string,
+        showUI?: boolean
+    ) {
+        return this._doc.execCommand(commandId, showUI, commandValue);
     }
-    return nodes;
-  }
 
-  replaceWithOwnChildren(el) {
-    const parent = el.parentNode;
-    while (el.hasChildNodes()) {
-      parent.insertBefore(el.firstChild, el);
+    /**
+     * Executes a command from the editor header buttons.
+     * @param command The command to execute.
+     * @param value The value for the command.
+     * @deprecated
+     */
+    public executeCommand(command: CommandId, value?: string) {
+        const commands = ['h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'p', 'code'];
+        if (commands.includes(command)) {
+            this.execCommand('formatBlock', command, false);
+            return;
+        }
+        this.execCommand(command, value, false);
     }
-    parent.removeChild(el);
-  }
 
-  removeSelectedElements(tagNames) {
-    const tagNamesArray = tagNames.toLowerCase().split(',');
-    this.getSelectedNodes().forEach((node) => {
-      if (node.nodeType === 1 &&
-        tagNamesArray.indexOf(node.tagName.toLowerCase()) > -1) {
-        // Remove the node and replace it with its children
-        this.replaceWithOwnChildren(node);
-      }
-    });
-  }
+    /**
+     * Queries the state of a command.
+     * @param commandId The command ID.
+     * @deprecated
+     */
+    public queryCommandState(commandId: string) {
+        return this._doc.queryCommandState(commandId);
+    }
+
+    /**
+     * Queries the value of a command.
+     * @param commandId The command ID.
+     * @deprecated
+     */
+    public queryCommandValue(commandId: string) {
+        return this._doc.queryCommandValue(commandId);
+    }
+
+    /**
+     * Creates a URL link.
+     * @param url The URL to create a link for.
+     * @deprecated
+     */
+    public createLink(url: string) {
+        if (!url.includes('http')) {
+            this.execCommand('createlink', url, false);
+            return;
+        }
+
+        if (!this._selection.selectedText) return;
+
+        const newUrl = this._doc.createElement('a');
+        newUrl.href = url;
+        newUrl.target = '_blank';
+        newUrl.innerText = this._selection.selectedText;
+
+        this.insertHtml(newUrl.getHTML());
+    }
+
+    /**
+     * Inserts a color into the editor.
+     * @param color The color to insert.
+     * @param where Where to insert the color (text/background).
+     * @deprecated
+     */
+    public insertColor(color: string, where: string): void {
+        const restored = this._selection.restoreSelection();
+        if (restored) {
+            if (where === 'textColor') {
+                this.execCommand('foreColor', color, false);
+            } else {
+                this.execCommand('hiliteColor', color, false);
+            }
+        }
+    }
+
+    /**
+     * Sets the font name.
+     * @param fontName The font name to set.
+     * @deprecated
+     */
+    public setFontName(fontName: string) {
+        // this.execCommand('fontName', false, fontName);
+    }
+
+    /**
+     * Sets the font size.
+     * @param fontSize The font size to set.
+     * @deprecated
+     */
+    public setFontSize(fontSize: string) {
+        // this.execCommand('fontSize', false, fontSize);
+    }
+
+    /**
+     * Executes a callback function in the next event loop iteration.
+     * @param callbackFn The callback function.
+     * @param timeout The timeout in milliseconds.
+     */
+    public executeInNextQueueIteration(
+        callbackFn: (...args: any[]) => any,
+        timeout = 1e2
+    ): void {
+        setTimeout(callbackFn, timeout);
+    }
+
+    /**
+     * Uploads an image to the upload URL.
+     * @param file The file to upload.
+     */
+    public uploadImage(file: File): Observable<HttpEvent<UploadResponse>> {
+        const uploadData: FormData = new FormData();
+
+        uploadData.append('file', file, file.name);
+
+        if (!this.uploadUrl) return NEVER;
+
+        return this.http.post<UploadResponse>(this.uploadUrl, uploadData, {
+            reportProgress: true,
+            observe: 'events',
+            withCredentials: this.uploadWithCredentials
+        });
+    }
+
+    /**
+     * Inserts an image with a URL.
+     * @param imageUrl The URL of the image.
+     * @deprecated
+     */
+    public insertImage(imageUrl: string) {
+        this.execCommand('insertImage', imageUrl, false);
+    }
+
+    /**
+     * Sets the default paragraph separator.
+     * @param separator The separator to set.
+     * @deprecated
+     */
+    public setDefaultParagraphSeparator(separator: string) {
+        this.execCommand('defaultParagraphSeparator', separator, false);
+    }
+
+    /**
+     * Creates a custom class.
+     * @param customClass The custom class to create.
+     * @deprecated
+     */
+    public createCustomClass(customClass: CustomClass) {
+        let newTag = this._selection.selectedText;
+
+        if (!newTag) return;
+        if (!customClass) return this.insertHtml(newTag);
+
+        const ele = document.createElement(customClass.tag ?? 'span');
+        ele.innerText = this._selection.selectedText ?? '';
+        ele.classList.add(customClass.class);
+
+        this.insertHtml(ele.getHTML());
+    }
 }

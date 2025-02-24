@@ -1,104 +1,61 @@
 import { Component, OnInit } from '@angular/core';
-import { FormBuilder, FormGroup, Validators } from '@angular/forms';
-import { AngularEditorConfig } from 'angular-editor';
+import {
+    FormControl,
+    FormsModule,
+    ReactiveFormsModule,
+    UntypedFormBuilder,
+    UntypedFormGroup,
+    Validators
+} from '@angular/forms';
+import {
+    AngularEditorComponent,
+    AngularEditorConfig
+} from '@angular-elements/rich-text-editor';
+import { sampleText } from './sample-text';
+import { editorConfig } from './editor.config';
+import { CommonModule } from '@angular/common';
 
-const ANGULAR_EDITOR_LOGO_URL = 'https://raw.githubusercontent.com/kolkov/angular-editor/master/docs/angular-editor-logo.png?raw=true'
+console.log(document.createElement('div').getHTML());
+
+const ANGULAR_EDITOR_LOGO_URL =
+    'https://raw.githubusercontent.com/kolkov/angular-editor/master/docs/angular-editor-logo.png?raw=true';
 
 @Component({
-  selector: 'app-root',
-  templateUrl: './app.component.html',
-  styleUrls: ['./app.component.scss']
-})
-export class AppComponent implements OnInit {
-  title = 'app';
-
-  form: FormGroup;
-
-  htmlContent1 = '';
-  htmlContent2 = '';
-  angularEditorLogo = `<img alt="angular editor logo" src="${ANGULAR_EDITOR_LOGO_URL}">`;
-
-  config1: AngularEditorConfig = {
-    editable: true,
-    spellcheck: true,
-    minHeight: '5rem',
-    maxHeight: '15rem',
-    placeholder: 'Enter text here...',
-    translate: 'no',
-    sanitize: false,
-    // toolbarPosition: 'top',
-    outline: true,
-    defaultFontName: 'Comic Sans MS',
-    defaultFontSize: '5',
-    // showToolbar: false,
-    defaultParagraphSeparator: 'p',
-    customClasses: [
-      {
-        name: 'quote',
-        class: 'quote',
-      },
-      {
-        name: 'redText',
-        class: 'redText'
-      },
-      {
-        name: 'titleText',
-        class: 'titleText',
-        tag: 'h1',
-      },
+    selector: 'app-root',
+    templateUrl: './app.component.html',
+    styleUrls: ['./app.component.scss'],
+    imports: [
+        CommonModule,
+        AngularEditorComponent,
+        FormsModule,
+        ReactiveFormsModule
     ],
-    toolbarHiddenButtons: [
-      ['bold', 'italic'],
-    ]
-  };
+    standalone: true
+})
+export class AppComponent {
+    config = editorConfig;
+    title = 'app';
 
-  config2: AngularEditorConfig = {
-    editable: true,
-    spellcheck: true,
-    minHeight: '5rem',
-    maxHeight: '15rem',
-    placeholder: 'Enter text here...',
-    translate: 'no',
-    sanitize: true,
-    toolbarPosition: 'bottom',
-    defaultFontName: 'Comic Sans MS',
-    defaultFontSize: '5',
-    defaultParagraphSeparator: 'p',
-    customClasses: [
-      {
-        name: 'quote',
-        class: 'quote',
-      },
-      {
-        name: 'redText',
-        class: 'redText'
-      },
-      {
-        name: 'titleText',
-        class: 'titleText',
-        tag: 'h1',
-      },
-    ]
-  };
+    public textFormControl = new FormControl<string>(sampleText);
 
-  constructor(private formBuilder: FormBuilder) {}
+    htmlContent1 = '';
+    htmlContent2 = '';
+    angularEditorLogo = `<img alt="angular editor logo" src="${ANGULAR_EDITOR_LOGO_URL}">`;
 
-  ngOnInit() {
-    this.form = this.formBuilder.group({
-      signature: ['', Validators.required]
-    });
-    console.log(this.htmlContent1);
-  }
+    constructor(private formBuilder: UntypedFormBuilder) {}
 
-  onChange(event) {
-    console.log('changed');
-  }
+    // ngOnInit() {
+    //     this.form = this.formBuilder.group({
+    //         signature: ['', Validators.required]
+    //     });
+    //     console.log(this.htmlContent1);
+    // }
 
-  onBlur(event) {
-    console.log('blur ' + event);
-  }
+    onChange(event: any) {}
 
-  onChange2(event) {
-    console.warn(this.form.value);
-  }
+    onBlur(event: any) {}
+
+    onChange2(event: any) {
+        // console.warn(this.form?.value);
+    }
 }

@@ -1,0 +1,40 @@
+<angular-editor-toolbar
+    #editorToolbar
+    ngxResized
+    [id]="id"
+    [customClasses]="editorConfig.customClasses"
+    [defaultFontName]="editorConfig.defaultFontName"
+    [defaultFontSize]="editorConfig.defaultFontSize"
+    [fonts]="getFonts()"
+    [hiddenButtons]="editorConfig.toolbarHiddenButtons"
+    [showToolbar]="editorConfig.showToolbar"
+    (sizechange)="height.next('calc(100% - ' + $event.height + 'px)')">
+    <ng-container
+        [ngTemplateOutlet]="customButtonsTemplateRef"
+        [ngTemplateOutletContext]="{ executeCommandFn: this.executeCommandFn }">
+    </ng-container>
+</angular-editor-toolbar>
+
+<div
+    class="angular-editor-wrapper bookerly"
+    [class.show-placeholder]="!(this.showPlaceholder | async)"
+    [style.height]="height | async">
+    <div
+        #editor
+        class="angular-editor-textarea"
+        [attr.contenteditable]="editorConfig.editable"
+        [attr.spellcheck]="editorConfig.spellcheck"
+        [attr.tabindex]="disabled ? -1 : tabIndex"
+        [attr.translate]="editorConfig.translate"
+        (input)="onContentChange($event.target)"
+        (focus)="onTextAreaFocus($event)"
+        (blur)="onTextAreaBlur($event)"
+        (click)="exec()"
+        (keyup)="exec()"
+        (mouseout)="onTextAreaMouseOut()"
+        (paste)="onPaste($event)"></div>
+
+    <!-- <span class="angular-editor-placeholder">
+        {{ placeholder || config['placeholder'] }}
+    </span> -->
+</div>

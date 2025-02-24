@@ -57,33 +57,34 @@
       "prefix": "app",
       "architect": {
         "build": {
-          "builder": "@angular-devkit/build-angular:browser",
+          "builder": "@angular-devkit/build-angular:application",
           "options": {
-            "outputPath": "dist/angular-editor-app",
+            "outputPath": {
+              "base": "dist/angular-editor-app"
+            },
             "index": "projects/angular-editor-app/src/index.html",
-            "main": "projects/angular-editor-app/src/main.ts",
-            "polyfills": "projects/angular-editor-app/src/polyfills.ts",
+            "polyfills": [
+              "projects/angular-editor-app/src/polyfills.ts"
+            ],
             "tsConfig": "projects/angular-editor-app/tsconfig.app.json",
             "assets": [
               "projects/angular-editor-app/src/favicon.ico",
-              "projects/angular-editor-app/src/assets",
               {
                 "glob": "**/*",
-                "input": "projects/angular-editor/assets/icons/",
-                "output": "assets/ae-icons/"
+                "input": "projects/angular-editor/assets/",
+                "output": "assets/"
               }
             ],
             "styles": [
-              "projects/angular-editor-app/src/styles.scss",
-              "projects/angular-editor/themes/default.scss"
+              "@angular/material/prebuilt-themes/azure-blue.css",
+              "projects/angular-editor-app/src/styles.scss"
             ],
             "scripts": [],
-            "vendorChunk": true,
             "extractLicenses": false,
-            "buildOptimizer": false,
             "sourceMap": true,
             "optimization": false,
-            "namedChunks": true
+            "namedChunks": true,
+            "browser": "projects/angular-editor-app/src/main.ts"
           },
           "configurations": {
             "production": {
@@ -98,8 +99,6 @@
               "sourceMap": false,
               "namedChunks": false,
               "extractLicenses": true,
-              "vendorChunk": false,
-              "buildOptimizer": true,
               "budgets": [
                 {
                   "type": "initial",
@@ -117,18 +116,18 @@
         "serve": {
           "builder": "@angular-devkit/build-angular:dev-server",
           "options": {
-            "browserTarget": "angular-editor-app:build"
+            "buildTarget": "angular-editor-app:build"
           },
           "configurations": {
             "production": {
-              "browserTarget": "angular-editor-app:build:production"
+              "buildTarget": "angular-editor-app:build:production"
             }
           }
         },
         "extract-i18n": {
           "builder": "@angular-devkit/build-angular:extract-i18n",
           "options": {
-            "browserTarget": "angular-editor-app:build"
+            "buildTarget": "angular-editor-app:build"
           }
         },
         "test": {
@@ -143,7 +142,10 @@
               "projects/angular-editor-app/src/assets"
             ],
             "styles": [
-              "projects/angular-editor-app/src/styles.css"
+              "@angular/material/prebuilt-themes/azure-blue.css",
+              "projects/angular-editor-app/src/styles.css",
+              "@angular-elements/rich-text-editor/themes/bookerly/bookerly.scss",
+              "@angular-elements/rich-text-editor/assets/material-symbols/material-symbols.css"
             ],
             "scripts": []
           }
