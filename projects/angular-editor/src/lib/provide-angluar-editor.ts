@@ -2,6 +2,7 @@ import { Provider } from '@angular/core';
 import { AngularEditorConfig } from './config/config';
 import { loadDefaultConfig } from './config/config-default';
 import { AeSelectionService } from './services/ae-selection.service';
+import { AeReplaceService } from './services/ae-replace.service';
 
 export const NGX_EDITOR_CONFIG = 'NGX_EDITOR_CONFIG';
 
@@ -13,6 +14,7 @@ export function provideAngularEditor(
             provide: NGX_EDITOR_CONFIG,
             useValue: loadDefaultConfig(editorConfig)
         },
-        AeSelectionService
+        AeSelectionService,
+        AeReplaceService
     ];
 }

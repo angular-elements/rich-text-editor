@@ -148,4 +148,16 @@ export class AeSelectionService {
         }
         parent.removeChild(el);
     }
+
+    public setCursorPosition(focusNode: Node, caretPosition: number) {
+        const selection = this.getSelection();
+        if (!selection) return;
+
+        const range = this._doc.createRange();
+        range.setStart(focusNode, caretPosition);
+        range.setEnd(focusNode, caretPosition);
+
+        selection.removeAllRanges();
+        selection.addRange(range);
+    }
 }
