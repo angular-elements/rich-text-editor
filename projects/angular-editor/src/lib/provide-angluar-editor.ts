@@ -1,7 +1,7 @@
 import { Provider } from '@angular/core';
-import { AngularEditorConfig } from './config';
-import { loadDefaultConfig } from './config-default';
-import { AeSelectionService } from './ae-selection.service';
+import { AngularEditorConfig } from './config/config';
+import { loadDefaultConfig } from './config/config-default';
+import { AeSelectionService } from './services/ae-selection.service';
 
 export const NGX_EDITOR_CONFIG = 'NGX_EDITOR_CONFIG';
 

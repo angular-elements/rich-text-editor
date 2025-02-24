@@ -1,0 +1,7 @@
+@use '../../styles/ae' as ae;
+
+:host {
+    &.angular-editor-button {
+        @include ae.button();
+    }
+}

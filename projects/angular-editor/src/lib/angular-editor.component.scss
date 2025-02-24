@@ -1,6 +1,6 @@
-@use 'styles.scss';
-@use 'sys' as sys;
-@use 'themes/themes' as theme;
+@use 'styles/styles.scss';
+@use 'styles/sys' as sys;
+@use 'styles/ae' as ae;
 
 angular-editor {
     display: flex;
@@ -42,7 +42,7 @@ angular-editor {
             background-color: sys.$surface-container;
             padding: sys.$padding-large;
 
-            @include theme.editor-theme();
+            @include ae.editor-theme();
 
             &:focus-visible {
                 outline: none;

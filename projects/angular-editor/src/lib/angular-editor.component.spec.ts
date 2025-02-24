@@ -1,7 +1,7 @@
 import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
 
 import { AngularEditorComponent } from './angular-editor.component';
-import { AeToolbarComponent } from './ae-toolbar/ae-toolbar.component';
+import { AeToolbarComponent } from './components/ae-toolbar/ae-toolbar.component';
 import { FormsModule } from '@angular/forms';
 import {
     provideHttpClient,

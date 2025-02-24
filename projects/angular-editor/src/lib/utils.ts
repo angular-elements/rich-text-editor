@@ -1,21 +1,9 @@
 import { Block, SelectOption } from './types';
 
-export function isDefined(value: any) {
+export function isTruthy<T = any>(
+    value: T | null | undefined
+): value is NonNullable<T> {
     return value !== undefined && value !== null;
-}
-
-export function formatHtmlTag(
-    tagName: string,
-    innerText: string,
-    props: { [propName: string]: string }
-) {
-    const formattedProps = Object.entries(props).map(([key, val]) => {
-        return `${key}="${val}"`;
-    });
-
-    return (
-        `<${tagName} ${formattedProps.join(' ')}>` + innerText + `</${tagName}>`
-    );
 }
 
 export function makeFontSizes(): SelectOption[] {
