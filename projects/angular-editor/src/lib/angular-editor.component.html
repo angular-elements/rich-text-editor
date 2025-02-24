@@ -26,7 +26,7 @@
         [attr.spellcheck]="editorConfig.spellcheck"
         [attr.tabindex]="disabled ? -1 : tabIndex"
         [attr.translate]="editorConfig.translate"
-        (input)="onContentChange($event.target)"
+        (input)="onContentChange($event)"
         (focus)="onTextAreaFocus($event)"
         (blur)="onTextAreaBlur($event)"
         (click)="exec()"

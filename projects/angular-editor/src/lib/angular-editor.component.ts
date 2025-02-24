@@ -36,6 +36,7 @@ import { NGX_EDITOR_CONFIG } from './provide-angluar-editor';
 import { NgxResizedDirective } from './directives/resized.directive';
 import { isTruthy } from './utils';
 import { loadDefaultConfig } from './config/config-default';
+import { AeReplaceService } from './services/ae-replace.service';
 
 @Component({
     selector: 'angular-editor',
@@ -114,6 +115,7 @@ export class AngularEditorComponent
         private _renderer: Renderer2,
         private _editorService: AngularEditorService,
         private _selectionService: AeSelectionService,
+        private _replaceService: AeReplaceService,
         private _sanitizer: DomSanitizer,
         @Optional()
         @Inject(NGX_EDITOR_CONFIG)
@@ -241,21 +243,6 @@ export class AngularEditorComponent
     }
 
     /**
-     *  focus the text area when the editor is focused
-     */
-    public onFocus() {
-        if (this._sourceMode) {
-            this.textArea.nativeElement.focus();
-        } else {
-            const sourceText = this._editorService.getElementById(
-                'sourceText' + this.id
-            );
-            sourceText?.focus();
-            this.focused = true;
-        }
-    }
-
-    /**
      * Toggles between source and rich text editing mode
      * @todo - this is broken
      */
@@ -282,10 +269,28 @@ export class AngularEditorComponent
     }
 
     /**
+     *  focus the text area when the editor is focused
+     */
+    public onFocus() {
+        if (this._sourceMode) {
+            this.textArea.nativeElement.focus();
+        } else {
+            const sourceText = this._editorService.getElementById(
+                'sourceText' + this.id
+            );
+            sourceText?.focus();
+            this.focused = true;
+        }
+    }
+
+    /**
      * Executed from the contenteditable section while the input property changes
      * @param element html element from contenteditable
      */
-    public onContentChange(element: any | null): void {
+    public onContentChange(event: InputEvent | Event | null): void {
+        if (!(event instanceof InputEvent)) return;
+
+        const element = event?.target;
         if (!element || !(element instanceof HTMLElement)) return;
 
         let html = '';
@@ -304,6 +309,8 @@ export class AngularEditorComponent
             this.changed = true;
             return;
         }
+
+        this._replaceService.evalForReplace(event, html);
 
         const sanitized = this.editorConfig.sanitize
             ? this._sanitizer.sanitize(SecurityContext.HTML, html)
